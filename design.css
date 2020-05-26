@@ -1,0 +1,62 @@
+h2{
+font-family: sans-serif;
+}
+
+
+input[type=radio] {
+  display: inline;
+  margin: 
+}
+
+button[type=submit]{
+  background-color: darkcyan;
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+  margin: 4px 2px;
+  cursor: pointer; 
+
+    
+}
+
+div.info2{
+    width: 1500px;
+    margin: auto
+}
+
+
+
+div.option2{}
+
+
+td:nth-child(odd) {
+  background-color: lightgray;
+}
+
+th, tr, td {
+    text-align: center;
+    padding: 8px;
+    background-color: white;
+}
+
+th {
+  background-color: lightcyan;
+}
+
+
+.info2{
+  text-align: center;
+  overflow: auto;
+  max-width:auto;
+  margin bottom: 30px;
+  max-width: 1200px;
+      
+   
+}
+
+.info1{
+  text-align: center;
+  margin: 0 auto;  
+  max-width: 1200px;
+   
+}

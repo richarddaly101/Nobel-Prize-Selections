@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+      
+<head>
+<title>Nobel Prize Winners</title>
+<link rel="stylesheet" type="text/css" href="design.css">
+<meta charset="UTF-8">
+</head>
+
+    
+<body>
+ 
+<div class="options">
+    
+<h2>Please select year range, category and gender</h2>
+  <select id="yearstart" class="select">
+    <option>Choose start year</option>
+  </select>
+
+  <select id="yearfinish" class="select">
+    <option>Choose finish year</option>
+  </select>
+
+ 
+  <select id="selectcat" class="select">
+    <option id="All winners">All winners</option>
+  </select>
+ 
+<br><br>
+    
+  <form id="change" class="form">
+  <input type="radio" name="gender" id="all" value="all" checked>All
+  <input type="radio" name="gender" id="male" value="male">Male
+  <input type="radio" name="gender" id="female" value="female">Female
+  </form>
+    
+<br>
+    
+<button type="submit" id="submit">Submit</button>
+    
+</div>
+    
+<div class="info2" id="xtable"></div> 
+    
+ <br><br><br>   
+<div class="info1" id="table"></div>
+    
+
+    
+
+ 
+    
+<script>
+ 
+/*Create 2 Http requests for two files*/
+    
+var xmlhttp = new XMLHttpRequest(); 
+var url = "prizesByYear.json";
+    
+xmlhttp.onreadystatechange = function() {
+    if (xmlhttp.readyState == 4 && xmlhttp.status == 200){
+       var parsedObj = JSON.parse(xmlhttp.responseText);
+       displayJSON(parsedObj); 
+    }     
+           
+};
+
+xmlhttp.open("GET", url, true);
+xmlhttp.send();
+    
+
+var xmlhttp1 = new XMLHttpRequest();
+var url1 = "winnersByID.json";
+    
+xmlhttp1.onreadystatechange = function() {
+    if (xmlhttp1.readyState == 4 && xmlhttp1.status == 200){
+       var parsedObj1 = JSON.parse(xmlhttp1.responseText);
+       displayJSON1(parsedObj1); 
+    }     
+           
+};
+
+xmlhttp1.open("GET", url1, true);
+xmlhttp1.send();
+    
+
+/*I defined 3 global variables outside my display functions, male and female array were used to retrieve ids split by gender and all array used in retrieving additional information*/
+    
+var malearray;
+var femalearray;
+var allarray
+
+
+/*Function for prizesbyYear data*/ 
+
+function displayJSON1(obj) {
+    
+var winners = obj.laureates;   
+allarray=winners
+  
+
+/*Below code used to retrieve unique ids as string for male winners. The functions to filter the arrays by genders and then extract id lists for each gender was referenced from
+https://stackoverflow.com/questions/19590865/from-an-array-of-objects-extract-value-of-a-property-as-array 
+and https://stackoverflow.com/questions/17781472/how-to-get-a-subset-of-a-javascript-objects-properties.*/   
+    
+var male = winners.filter(function (el) {
+  return el.gender == "male"
+});  
+
+Object.prototype.pick = function (props) {
+   return  props.reduce((function (obj, property) {
+        obj[property] = this[property];
+        return obj;
+   }).bind(this), {});
+}
+
+function  cloneArray (array, props) { 
+    return array.map(function (obj) { 
+       return obj.pick(props);
+    });
+}    
+var m = cloneArray(male,['id'])  
+var mstring=JSON.stringify(m); 
+malearray=mstring
+
+    
+    
+/*Below code used to retrieve unique ids as string for female winners*/  
+    
+var female = winners.filter(function (el) {
+  return el.gender == "female"
+});
+    
+var f = cloneArray(female,['id'])
+
+var fstring=JSON.stringify(f);
+femalearray=fstring}
+
+ 
+    
+    
+
+    
+/*Function for winnersbyid data*/  
+    
+    
+function displayJSON(obj) {
+
+    
+var prizes = obj.prizes;
+    
+
+/*Below code used to pass in unique values for categories in dropdown box.
+The code to pass in values of categories and years from array to dropdown was referenced from 
+https://stackoverflow.com/questions/9895082/javascript-populate-drop-down-list-with-array.*/  
+    
+var category = prizes.map(function (el) { return el.category; });
+
+
+var unique=Array.from(new Set(category));
+
+    
+var select = document.getElementById("selectcat"); 
+for(var i = 0; i < unique.length; i++) {
+    var opt = unique[i];
+    var el = document.createElement("option");
+    el.textContent = opt;
+    el.value = opt;
+    select.appendChild(el);}
+
+    
+    
+    
+/*Below code used to pass in unique values for years in dropdown boxes*/  
+    
+var years = prizes.map(function (el) { return el.year; });
+
+    
+var uniquey=Array.from(new Set(years));
+
+var select = document.getElementById("yearstart"); 
+for(var i = 0; i < uniquey.length; i++) {
+    var opt = uniquey[i];
+    var el = document.createElement("option");
+    el.textContent = opt;
+    el.value = opt;
+    select.appendChild(el);
+}
+    
+var select = document.getElementById("yearfinish"); 
+for(var i = 0; i < uniquey.length; i++) {
+    var opt = uniquey[i];
+    var el = document.createElement("option");
+    el.textContent = opt;
+    el.value = opt;
+    select.appendChild(el);
+}
+    
+
+    
+    
+    
+    
+    
+/*All dropdown options were assigned to variables which were then fires when submit button clicked*/  
+    
+document.getElementById("submit").addEventListener("click", function (){  
+var catselected=document.getElementById("selectcat").value;
+var ystart=document.getElementById("yearstart").value;
+var yfinish=document.getElementById("yearfinish").value;    
+var gendervalue=document.querySelector('input[name="gender"]:checked').value;
+
+
+/*Below code to create table based on user selection and iterate using for loop was referenced from readyoutubeData.html in the sixth practical. If the selection options doesn't make logical sense then display error and prompt to try again*/  
+    
+
+/*Within the for loop which iterated over each prize winner I included two if statements to filter based on years, categories and genders selected.
+Within the table cell for firstname I inserted a function to retreive additional information if selected. The use of .this to retrieve id values was referenced from https://www.w3schools.com/js/js_this.asp. The firstname then has a hyperlink to flag that addiotional information is available when clicked.*/  
+ 
+if (ystart>yfinish && (catselected!="All winners" || catselected=="All winners") && (gendervalue=='male' || gendervalue=='all' || gendervalue=='female')){
+    var prizeInfo= "<p></p>"
+    prizeInfo+="Selection invalid, please try again"
+}
+ 
+else{
+
+var prizeInfo = "<table border = 1 >";
+    prizeInfo += "<tr><th>Year of Award</th><th>Category</th><th>Firstname</th><th>Surname</th><th>Motivation</th><th>Gender</th></tr>";    
+
+for (var i=0; i <prizes.length; i++){
+    var year=prizes[i].year;
+    var cat=prizes[i].category;
+    if (year>=ystart && year<=yfinish && (catselected==cat || catselected=="All winners")){
+        var year = prizes[i].year;
+        var category = prizes[i].category; 
+        var laureates = prizes[i].laureates
+    for (var e=0; e <laureates.length; e++){
+        var laureates = prizes[i].laureates;
+        var ID=laureates[e].id;
+        if (malearray.includes(ID)){
+        var gender="male";
+            }
+        if (femalearray.includes(ID)){
+        var gender="female";
+        } 
+        var firstname = laureates[e].firstname;
+        var surname = laureates[e].surname;
+        var motivation=laureates[e].motivation;
+        if (gendervalue==gender || gendervalue=='all'){
+        prizeInfo += "<tr><td>" + year + "</td><td>" + category + "</td><td onclick='extrainfo(this.id)' id="+ID+"><a href='#'>" + firstname + "</a></td><td>" + surname + "</td><td>" + motivation + "</td><td>" + gender + "</td></tr>";}
+    }  
+    }}
+        prizeInfo += "</table>";   }
+    
+/*Completed for loop is displayed in table div*/  
+    
+document.getElementById("table").innerHTML = prizeInfo;})
+}
+    
+    
+/*Below function pulls all ids from above table that were sourced from PrizesByYear file and stores them in var data. For loop then used to iterate over all winners in winnersbyID file to find corresponding additional info and display it in separate div to above table.*/      
+    
+    
+function extrainfo(x){
+  var data=x
+
+    
+   var extratable = "<table border = 1 >";
+    extratable += "<tr><th>Firstname</th><th>Surname</th><th>Year of birth</th><th>Year of death</th><th>City</th><th>Motivation</th><th>Affiliate name</th><th>Affiliate city</th><th>Affiliate country</th></tr>";  
+    
+   for (var i=0; i <allarray.length; i++){
+       var id=allarray[i].id
+       if(data==id){
+           var firstname=allarray[i].firstname;
+           var surname=allarray[i].surname;
+           var ybirth=allarray[i].born;
+           var ydeath=allarray[i].died;
+           var city=allarray[i].bornCity;
+           var prizes=allarray[i].prizes[0];
+           var motive=prizes.motivation;
+           var afill=prizes.affiliations[0];
+           var name=afill.name;
+           var city=afill.city;
+           var country=afill.country;
+           
+         
+           extratable+="<tr><td>" + firstname + "</td><td>" + surname + "</td><td>" + ybirth + "</td><td>" + ydeath + "</td><td>" + city + "</td><td>" + motive + 
+           "</td><td>" + name + "</td><td>"  + city + "</td><td>" + country + "</td></tr>"        
+       }              
+}
+extratable += "</table>"; 
+document.getElementById("xtable").innerHTML = extratable;
+}
+
+
+</script>
+    
+
+
+</body>
+</html>
+
+
